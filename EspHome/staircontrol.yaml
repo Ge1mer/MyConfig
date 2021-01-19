@@ -1,0 +1,428 @@
+esphome:
+  name: staircontrol
+  platform: ESP8266
+  board: esp12e
+
+wifi:
+  ssid: "USDBashtel_B462"
+  password: "GXSU28PH"
+  
+  manual_ip:
+    static_ip: 192.168.1.132
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Stair Control Fallback Hotspot"
+    password: "ZEVKqmBZWeGc"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "Stair"
+
+ota:
+  password: "Stair"
+  
+status_led:
+  pin: 
+    number: GPIO2
+    inverted: True
+    
+globals:
+   - id: backlight_mode
+     type: bool
+     initial_value: 'false'    
+
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+  scan: True
+  id: bus_a
+
+# Example configuration entry
+pca9685:
+  frequency: 1000
+  
+script:
+  # Upstair on
+  - id: upstair_on
+    then:
+      - script.stop: downstair_on
+      - script.stop: downstair_off
+      - script.stop: upstair_off
+      - light.turn_on: 
+          id: Light0
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on:
+          id: Light1
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light2
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light3
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on:
+          id: Light4
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light5
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light6
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light7
+          brightness: 100%
+      - delay: 0.4s
+      
+  # Downstair on
+  - id: downstair_on
+    then:
+      - script.stop: upstair_on
+      - script.stop: downstair_off
+      - script.stop: upstair_off
+      - light.turn_on: 
+          id: Light7
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light6
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light5
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light4
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light3
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light2
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light1
+          brightness: 100%
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light0
+          brightness: 100%
+      - delay: 0.4s
+      
+   # Upstair off
+  - id: upstair_off
+    then: 
+      - script.stop: downstair_on
+      - script.stop: downstair_off
+      - script.stop: upstair_on
+      - light.turn_on: 
+          id: Light0
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light1
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+         
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light2
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+          
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light3
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+          
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light4
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+          
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light5
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+           
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light6
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+          
+      - delay: 0.4s    
+      - light.turn_on: 
+          id: Light7
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s  
+      
+   # Downstair off
+  - id: downstair_off
+    then:   
+      - script.stop: downstair_on
+      - script.stop: upstair_on
+      - script.stop: upstair_off
+      - light.turn_on: 
+          id: Light7
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light6
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light5
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light4
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light3
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light2
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s 
+      - light.turn_on:
+          id: Light1
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s
+      - light.turn_on: 
+          id: Light0
+          brightness: !lambda |-
+            if (id(backlight_mode)) {
+            return 0.1;
+            } else {
+            return 0;
+            }
+      - delay: 0.4s  
+
+
+
+switch:
+  
+  - platform: template
+    name: "On up"
+    turn_on_action:
+      -  script.execute: upstair_on
+     
+      
+  - platform: template
+    name: "Off up"
+    turn_on_action:
+      -  script.execute: upstair_off
+      
+      
+  - platform: template
+    name: "On down"
+    turn_on_action:
+      -  script.execute: downstair_on
+      
+      
+  - platform: template
+    name: "Off down"
+    turn_on_action:
+      -  script.execute: downstair_off
+  
+  - platform: template
+    name: "Backlight"
+    id: backlight
+#    icon: "mdi:volume-off"
+    optimistic: true
+    restore_state: true
+    on_turn_on:
+      - globals.set:
+          id: backlight_mode
+          value: 'true'
+    on_turn_off:
+      - globals.set:
+          id: backlight_mode
+          value: 'false'
+ 
+      
+  - platform: restart
+    name: "Stair restart"
+  
+light:
+  - platform: monochromatic
+    name: "Living Room Lights0"
+    output: output_component0
+    internal: true
+    id: Light0
+  - platform: monochromatic
+    name: "Living Room Lights1"
+    output: output_component1
+    internal: true
+    id: Light1
+  - platform: monochromatic
+    name: "Living Room Lights2"
+    output: output_component2
+    internal: true
+    id: Light2
+  - platform: monochromatic
+    name: "Living Room Lights3"
+    output: output_component3
+    internal: true
+    id: Light3
+  - platform: monochromatic
+    name: "Living Room Lights4"
+    output: output_component4
+    internal: true
+    id: Light4
+  - platform: monochromatic
+    name: "Living Room Lights5"
+    output: output_component5
+    internal: true
+    id: Light5    
+  - platform: monochromatic
+    name: "Living Room Lights6"
+    output: output_component6
+    internal: true
+    id: Light6
+  - platform: monochromatic
+    name: "Living Room Lights7"
+    output: output_component7
+    internal: true
+    id: Light7    
+ 
+  
+   
+
+# Individual outputs
+output:
+  - platform: pca9685
+    id: 'output_component0'
+    channel: 0
+  - platform: pca9685
+    id: 'output_component1'
+    channel: 1
+  - platform: pca9685
+    id: 'output_component2'
+    channel: 2  
+  - platform: pca9685
+    id: 'output_component3'
+    channel: 3
+  - platform: pca9685
+    id: 'output_component4'
+    channel: 4
+  - platform: pca9685
+    id: 'output_component5'
+    channel: 5    
+  - platform: pca9685
+    id: 'output_component6'
+    channel: 6
+  - platform: pca9685
+    id: 'output_component7'
+    channel: 7   
+    
+binary_sensor:
+  - platform: gpio
+    pin: GPIO14
+    name: "Stair bottom"
+    device_class: motion
+    
+    
+sensor:  
+  - platform: wifi_signal
+    name: "Stair WiFi Signal"
+    update_interval: 60s
+    
+  - platform: uptime
+    name: "Stair uptime"
+    
+  

@@ -1,0 +1,126 @@
+esphome:
+  name: bed_room
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: 'USDBashtel_B462'
+  password: 'GXSU28PH'
+  
+  manual_ip:
+    static_ip: 192.168.1.130
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+    
+    # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Light Bed Fallback Hotspot"
+    password: "qJDe4H8JDDB2"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: bed1
+
+ota:
+  password: bed1
+
+status_led:
+  pin: 
+    number: GPIO4
+    inverted: True
+
+
+output:
+  - platform: gpio
+    pin: GPIO12
+    id: light_1g_relay
+  
+    
+light:
+  - platform: binary
+    name: 'light_1g_relay'
+    id: light_mt_1g_relay
+    output: light_1g_relay
+    restore_mode: ALWAYS_OFF
+
+    
+
+remote_receiver:
+  pin:
+    number: GPIO5
+    inverted: true
+  dump: rc_switch
+  tolerance: 50%
+  filter: 250us
+  idle: 4ms
+  buffer_size: 2kb        
+  
+sensor:  
+  - platform: wifi_signal
+    name: "Bed WiFi Signal"
+    update_interval: 60s
+    
+  - platform: uptime
+    name: "Bed uptime"
+    
+binary_sensor:
+  - platform: gpio
+    pin: GPIO13
+    filters:
+      - invert:
+      - delayed_on: 20ms
+    name: light_1g_button
+    id: light_1g_button
+    on_state:
+      then:
+        - light.toggle: light_mt_1g_relay
+        
+  - platform: remote_receiver
+    name: RF_switchA
+    rc_switch_raw:
+      code: '001110011111011100100010'
+      protocol: 6 
+    filters:
+    - delayed_off: 300ms
+    on_press:
+      then:
+        - light.toggle: light_mt_1g_relay
+    
+  - platform: remote_receiver
+    name: RF_switchB
+    rc_switch_raw:
+      code: '001110011111011100101000'
+      protocol: 6 
+    filters:
+    - delayed_off: 300ms
+    
+  - platform: remote_receiver
+    name: RF_switchON
+    rc_switch_raw:
+      code: '001110011111011100100001'
+      protocol: 6 
+    filters:
+    - delayed_off: 300ms
+ 
+  
+  - platform: remote_receiver
+    name: RF_switchSl
+    rc_switch_raw:
+      code: '001110011111011100100100'
+      protocol: 6 
+    filters:
+    - delayed_off: 300ms  
+    
+
+    
+    
+    
+switch:
+  - platform: restart
+    name: "Bed restart"
+ 
