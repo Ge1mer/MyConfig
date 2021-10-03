@@ -2,6 +2,14 @@ esphome:
   name: meteostation
   platform: ESP8266
   board: esp12e
+ 
+  libraries:
+#    - "uFire SHT20"
+    - "ArduinoJson"
+  includes:
+    - include/sht20.h
+    - include/ufire/uFire_SHT20.h
+    - include/ufire/uFire_SHT20.cpp
 
 wifi:
   ssid: !secret wifi_ssid
@@ -36,6 +44,7 @@ web_server:
 status_led:
   pin: 
     number: GPIO2
+    inverted: true
    
   
 i2c:
@@ -45,34 +54,53 @@ i2c:
   id: bus_a  
   
 sensor:
-  - platform: bme280
-    temperature:
-      name: "BME280 Temperature"
-      oversampling: 16x
-      accuracy_decimals: 3
-      filters:
-      - median:
-          window_size: 8
-          send_every: 6
-          send_first_at: 3
-      id: BME280_temperature
-#      filters:
-#        - lambda: return x - ((id(bh1750_illuminance).state)/2500);
-    pressure:
-      name: "BME280 Pressure"
-      accuracy_decimals: 2
-    humidity:
-      name: "BME280 Humidity"
-      accuracy_decimals: 2
-      id: BME280_humidity
-    address: 0x76
-    update_interval: 60s
+
+  - platform: custom
+    lambda: |-
+      auto sht20 = new SHT20();
+      App.register_component(sht20);
+      return {sht20->temperature_sensor, sht20->humidity_sensor, sht20->vpd_sensor, sht20->dew_point_sensor};
+    sensors:
+      - name: "Temperature"
+        id: sensor_temperature
+        unit_of_measurement: °C
+        accuracy_decimals: 2
+        device_class: temperature
+      - name: "Humidity"
+        id: sensor_humidity
+        unit_of_measurement: "%"
+        accuracy_decimals: 2
+        device_class: humidity
+      - name: "Vapour-pressure deficit"
+        id: sensor_vpd
+        unit_of_measurement: "kPa"
+        accuracy_decimals: 2
+      - name: "Dew point"
+        id: sensor_dew_point
+        unit_of_measurement: °C
+        accuracy_decimals: 2
+        device_class: temperature
+        
+
+
+
     
   - platform: bh1750
     name: "BH1750 Illuminance"
     address: 0x23
     id: bh1750_illuminance
     update_interval: 60s
+  
+  - platform: bme280
+    temperature:
+      name: "Inside Temperature"
+      oversampling: 16x
+    pressure:
+      name: "BME280 Pressure"
+    humidity:
+      name: "Inside Humidity"
+    address: 0x76
+    update_interval: 60s  
     
   
  
@@ -201,4 +229,3 @@ text_sensor:
 switch:
   - platform: restart
     name: "Meteostation restart"
-    
